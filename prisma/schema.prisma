@@ -7,16 +7,13 @@ datasource db {
 }
 
 model User {
-  id           BigInt @id @default(autoincrement())
-  provider     String @default("google")
-  email        String   @unique
-  name         String
-  pictureUrl   String @map("picture_url")
-  tokenVersion Int    @default(0) @map("token_version")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
-
-  docs Doc[]
+  id           BigInt  @id @default(autoincrement())
+  email        String  @unique
+  displayName  String? @map("display_name")
+  passwordHash String? @map("password_hash")
+  tokenVersion Int     @default(1) @map("token_version")
+  createdAt    BigInt  @map("created_at")
+  updatedAt    BigInt  @map("updated_at")
 
   @@map("users")
 }
@@ -31,9 +28,6 @@ model Doc {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  user User    @relation(fields: [userId], references: [id])
-  tags DocTag[]
-
   @@map("docs")
 }
 
@@ -42,17 +36,12 @@ model Tag {
   name String
   slug String
 
-  docs DocTag[]
-
   @@map("tags")
 }
 
 model DocTag {
-  tagId Int   @map("tag_id")
+  tagId Int    @map("tag_id")
   docId BigInt @map("doc_id")
-
-  tag Tag @relation(fields: [tagId], references: [id])
-  doc Doc @relation(fields: [docId], references: [id])
 
   @@id([tagId, docId])
   @@map("doc_tags")

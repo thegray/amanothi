@@ -7,7 +7,7 @@ export const useUser = routeLoader$(async (requestEvent) => {
   if (!userId) throw requestEvent.redirect(302, "/login/");
   const user = await getUserById(userId);
   if (!user) throw requestEvent.redirect(302, "/login/");
-  return { id: Number(user.id), name: user.name, email: user.email, pictureUrl: user.pictureUrl };
+  return { id: Number(user.id), displayName: user.displayName, email: user.email };
 });
 
 export default component$(() => {
@@ -27,17 +27,11 @@ export default component$(() => {
           <span class="text-xl font-bold text-gray-800">Amanothi</span>
         </div>
         <div class="flex items-center gap-3 border-b border-gray-200 px-6 py-4">
-          {user.value.pictureUrl && (
-            <img
-              src={user.value.pictureUrl}
-              alt=""
-              width={36}
-              height={36}
-              class="h-9 w-9 rounded-full"
-            />
-          )}
+          <div class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-600">
+            {(user.value.displayName || user.value.email).charAt(0).toUpperCase()}
+          </div>
           <div class="truncate">
-            <p class="text-sm font-medium text-gray-800">{user.value.name}</p>
+            <p class="text-sm font-medium text-gray-800">{user.value.displayName || user.value.email}</p>
             <p class="text-xs text-gray-500">{user.value.email}</p>
           </div>
         </div>

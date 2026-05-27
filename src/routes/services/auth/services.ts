@@ -4,14 +4,14 @@ import { prisma } from "~/db/prisma";
 import type { GoogleTokenResponse, GoogleUser, AuthUser } from "./types";
 
 function getSecret() {
-  const secret = import.meta.env.SESSION_SECRET;
-  if (!secret) throw new Error("SESSION_SECRET is not set");
-  return new TextEncoder().encode(secret);
+  const sessionSecret = import.meta.env.VITE_SESSION_SECRET;
+  if (!sessionSecret) throw new Error("VITE_SESSION_SECRET is not set");
+  return new TextEncoder().encode(sessionSecret);
 }
 
 export function getGoogleOAuthURL(): string {
-  const clientId = import.meta.env.GOOGLE_CLIENT_ID;
-  const redirectUri = import.meta.env.GOOGLE_REDIRECT_URI;
+  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+  const redirectUri = import.meta.env.VITE_GOOGLE_REDIRECT_URI;
   const params = new URLSearchParams({
     client_id: clientId,
     redirect_uri: redirectUri,
@@ -24,14 +24,15 @@ export function getGoogleOAuthURL(): string {
 }
 
 export async function getGoogleTokens(code: string): Promise<GoogleTokenResponse> {
+  const secret = import.meta.env.VITE_GOOGLE_CLIENT_SECRET;
   const res = await fetch("https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
       code,
-      client_id: import.meta.env.GOOGLE_CLIENT_ID,
-      client_secret: import.meta.env.GOOGLE_CLIENT_SECRET,
-      redirect_uri: import.meta.env.GOOGLE_REDIRECT_URI,
+      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+      client_secret: secret,
+      redirect_uri: import.meta.env.VITE_GOOGLE_REDIRECT_URI,
       grant_type: "authorization_code",
     }),
   });
@@ -50,19 +51,25 @@ export async function getGoogleUser(accessToken: string): Promise<GoogleUser> {
   return res.json();
 }
 
+function unixNow(): bigint {
+  return BigInt(Math.floor(Date.now() / 1000));
+}
+
 export async function findOrCreateUser(googleUser: GoogleUser): Promise<{ id: bigint }> {
+  const now = unixNow();
   const user = await prisma.user.upsert({
     where: { email: googleUser.email },
     update: {
-      name: googleUser.name,
-      pictureUrl: googleUser.picture,
+      displayName: googleUser.name,
       tokenVersion: { increment: 1 },
+      updatedAt: now,
     },
     create: {
-      provider: "google",
       email: googleUser.email,
-      name: googleUser.name,
-      pictureUrl: googleUser.picture,
+      displayName: googleUser.name,
+      tokenVersion: 1,
+      createdAt: now,
+      updatedAt: now,
     },
   });
   return { id: user.id };
@@ -96,7 +103,6 @@ export async function getUserById(
   return {
     id: user.id,
     email: user.email,
-    name: user.name,
-    pictureUrl: user.pictureUrl,
+    displayName: user.displayName,
   };
 }

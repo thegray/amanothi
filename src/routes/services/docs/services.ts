@@ -1,24 +1,49 @@
 import { prisma } from "~/db/prisma";
 import type { DocWithTags } from "./types";
 
+async function attachTagsToDocs<T extends { id: bigint }>(
+  docs: T[]
+): Promise<(T & { tags: { tag: { id: number; name: string; slug: string } }[] })[]> {
+  if (docs.length === 0) return docs.map((d) => ({ ...d, tags: [] }));
+  const docIds = docs.map((d) => d.id);
+  const docTags = await prisma.docTag.findMany({
+    where: { docId: { in: docIds } },
+  });
+  const tagIds = [...new Set(docTags.map((dt) => dt.tagId))];
+  const tags = await prisma.tag.findMany({
+    where: { id: { in: tagIds } },
+  });
+  const tagMap = new Map(tags.map((t) => [t.id, t]));
+  const tagMapByDoc = new Map<bigint, { tag: { id: number; name: string; slug: string } }[]>();
+  for (const dt of docTags) {
+    const list = tagMapByDoc.get(dt.docId) ?? [];
+    const tag = tagMap.get(dt.tagId);
+    if (tag) list.push({ tag: { id: tag.id, name: tag.name, slug: tag.slug } });
+    tagMapByDoc.set(dt.docId, list);
+  }
+  return docs.map((d) => ({ ...d, tags: tagMapByDoc.get(d.id) ?? [] }));
+}
+
 export async function getDocsForUser(
   userId: bigint
 ): Promise<DocWithTags[]> {
-  return prisma.doc.findMany({
+  const docs = await prisma.doc.findMany({
     where: { userId, status: "active" },
-    include: { tags: { include: { tag: true } } },
     orderBy: { updatedAt: "desc" },
   });
+  return attachTagsToDocs(docs);
 }
 
 export async function getDocForUser(
   userId: bigint,
   docId: bigint
 ): Promise<DocWithTags | null> {
-  return prisma.doc.findFirst({
+  const doc = await prisma.doc.findFirst({
     where: { id: docId, userId, status: "active" },
-    include: { tags: { include: { tag: true } } },
   });
+  if (!doc) return null;
+  const [enriched] = await attachTagsToDocs([doc]);
+  return enriched;
 }
 
 export async function createDoc(

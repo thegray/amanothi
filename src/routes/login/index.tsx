@@ -9,15 +9,19 @@ export const useAuth = routeLoader$(async (requestEvent) => {
   return null;
 });
 
+export const useOAuthUrl = routeLoader$(() => {
+  return getGoogleOAuthURL();
+});
+
 export default component$(() => {
-  const oauthUrl = getGoogleOAuthURL();
+  const oauthUrlSignal = useOAuthUrl();
 
   return (
     <div class="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800 text-white">
       <div class="text-center">
         <h1 class="mb-8 text-4xl font-bold">Sign In</h1>
         <a
-          href={oauthUrl}
+          href={oauthUrlSignal.value}
           class="inline-flex items-center gap-3 rounded-lg bg-white px-6 py-3 text-gray-800 shadow-lg transition hover:bg-gray-100"
         >
           <svg class="h-6 w-6" viewBox="0 0 24 24">
