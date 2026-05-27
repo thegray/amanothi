@@ -13,7 +13,7 @@
 This project is using Qwik with [QwikCity](https://qwik.dev/qwikcity/overview/). QwikCity is just an extra set of tools on top of Qwik to make it easier to build a full site, including directory-based routing, layouts, and more.
 
 Inside your project, you'll see the following directory structure:
-
+This project follow the **Service Layer Pattern**
 ```
 ├── public/
 │   └── ...
@@ -21,7 +21,16 @@ Inside your project, you'll see the following directory structure:
     ├── components/
     │   └── ...
     └── routes/
-        └── ...
+        ├── app/ (or routes/ for Qwik)      # ENTRY POINTS (no DB logic here)
+        │   └── [docId]/
+        │       └── index.tsx               # Web Page: Calls getDocs() -> renders HTML
+        │
+        ├── services/                        # BUSINESS LOGIC HOUSING
+        │   └── docs/
+        │       ├── services.ts             # SERVICE LAYER
+        │       │                           # Contains: getDocs(), createDoc(), etc.
+        │       └── types.ts                # Shared TypeScript definitions
+
 ```
 
 - `src/routes`: Provides the directory-based routing, which can include a hierarchy of `layout.tsx` layout files, and an `index.tsx` file as the page. Additionally, `index.ts` files are endpoints. Please see the [routing docs](https://qwik.dev/qwikcity/routing/overview/) for more info.
