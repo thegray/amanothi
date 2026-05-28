@@ -1,8 +1,8 @@
 import { component$ } from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
 import { routeAction$, routeLoader$, Form } from "@builder.io/qwik-city";
-import { getUserIdFromSession } from "../../services/auth/services";
-import { createDoc } from "../../services/docs/services";
+import { getUserIdFromSession } from "~/services/auth/services";
+import { createDoc } from "~/services/docs/services";
 
 export const useUser = routeLoader$(async (requestEvent) => {
   const userId = await getUserIdFromSession(requestEvent);
@@ -19,7 +19,7 @@ export const useCreateDoc = routeAction$(async (formData, requestEvent) => {
 
   const doc = await createDoc(userId, content, docType);
 
-  throw requestEvent.redirect(302, `/app/${doc.id}/`);
+  throw requestEvent.redirect(302, `/doc/${doc.id}/`);
 });
 
 export default component$(() => {

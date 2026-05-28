@@ -1,11 +1,11 @@
 import { component$ } from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
 import { routeLoader$ } from "@builder.io/qwik-city";
-import { getUserIdFromSession } from "./services/auth/services";
+import { getUserIdFromSession } from "~/services/auth/services";
 
 export const useAuth = routeLoader$(async (requestEvent) => {
   const userId = await getUserIdFromSession(requestEvent);
-  if (userId) throw requestEvent.redirect(302, "/app/");
+  if (userId) throw requestEvent.redirect(302, "/doc/");
   return null;
 });
 

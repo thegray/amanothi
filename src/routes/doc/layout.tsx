@@ -1,6 +1,6 @@
 import { component$, Slot } from "@builder.io/qwik";
 import { routeLoader$, useLocation } from "@builder.io/qwik-city";
-import { getUserIdFromSession, getUserById } from "../services/auth/services";
+import { getUserIdFromSession, getUserById } from "~/services/auth/services";
 
 export const useUser = routeLoader$(async (requestEvent) => {
   const userId = await getUserIdFromSession(requestEvent);
@@ -15,8 +15,8 @@ export default component$(() => {
   const loc = useLocation();
 
   const navItems = [
-    { href: "/app/", label: "My Notes", icon: "📝" },
-    { href: "/app/new", label: "New Note", icon: "➕" },
+    { href: "/doc/", label: "My Notes", icon: "📝" },
+    { href: "/doc/new", label: "New Note", icon: "➕" },
   ];
 
   return (

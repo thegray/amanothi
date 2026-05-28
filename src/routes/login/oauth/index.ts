@@ -4,7 +4,7 @@ import {
   getGoogleUser,
   findOrCreateUser,
   createSessionToken,
-} from "../../services/auth/services";
+} from "~/services/auth/services";
 
 export const onGet: RequestHandler = async (requestEvent) => {
   const code = requestEvent.query.get("code");
@@ -26,7 +26,7 @@ export const onGet: RequestHandler = async (requestEvent) => {
       path: "/",
     });
 
-    throw requestEvent.redirect(302, "/app/");
+    throw requestEvent.redirect(302, "/doc/");
   } catch (e) {
     console.error("OAuth error:", e);
     throw requestEvent.redirect(302, "/login/");

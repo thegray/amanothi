@@ -1,8 +1,8 @@
 import { component$ } from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
 import { routeLoader$ } from "@builder.io/qwik-city";
-import { getUserIdFromSession } from "../services/auth/services";
-import { getDocsForUser } from "../services/docs/services";
+import { getUserIdFromSession } from "~/services/auth/services";
+import { getDocsForUser } from "~/services/docs/services";
 export const useDocs = routeLoader$(async (requestEvent) => {
   const userId = await getUserIdFromSession(requestEvent);
   if (!userId) return [];
@@ -24,7 +24,7 @@ export default component$(() => {
       <div class="mb-8 flex items-center justify-between">
         <h1 class="text-2xl font-bold text-gray-800">My Notes</h1>
         <a
-          href="/app/new"
+          href="/doc/new"
           class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-500"
         >
           + New Note
@@ -35,7 +35,7 @@ export default component$(() => {
         <div class="rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
           <p class="text-gray-500">No notes yet</p>
           <a
-            href="/app/new"
+            href="/doc/new"
             class="mt-2 inline-block text-blue-600 hover:underline"
           >
             Create your first note
@@ -46,7 +46,7 @@ export default component$(() => {
           {docs.value.map((doc) => (
             <a
               key={String(doc.id)}
-              href={`/app/${String(doc.id)}/`}
+              href={`/doc/${String(doc.id)}/`}
               class="group rounded-lg border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md"
             >
               <div class="mb-2 flex items-center gap-2">

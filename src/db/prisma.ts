@@ -19,3 +19,9 @@ function getPrisma() {
 export const prisma = globalForPrisma.prisma ?? getPrisma();
 
 if (import.meta.env.DEV) globalForPrisma.prisma = prisma;
+
+prisma.$connect().catch((err: Error) => {
+  const isRefused = err.message.includes("ECONNREFUSED");
+  console.error(`Database connection failed`);
+  console.error(`${isRefused ? "DB is not running or unreachable." : err.message}`);
+});

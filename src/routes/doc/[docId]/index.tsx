@@ -1,12 +1,12 @@
 import { component$ } from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
 import { routeAction$, routeLoader$, Form } from "@builder.io/qwik-city";
-import { getUserIdFromSession } from "../../services/auth/services";
+import { getUserIdFromSession } from "~/services/auth/services";
 import {
   getDocForUser,
   updateDoc,
   deleteDoc,
-} from "../../services/docs/services";
+} from "~/services/docs/services";
 
 export const useDoc = routeLoader$(async (requestEvent) => {
   const userId = await getUserIdFromSession(requestEvent);
@@ -14,7 +14,7 @@ export const useDoc = routeLoader$(async (requestEvent) => {
 
   const docId = BigInt(requestEvent.params.docId);
   const doc = await getDocForUser(userId, docId);
-  if (!doc) throw requestEvent.redirect(302, "/app/");
+  if (!doc) throw requestEvent.redirect(302, "/doc/");
   return {
     ...doc,
     id: doc.id.toString(),
@@ -41,7 +41,7 @@ export const useDeleteDoc = routeAction$(async (_, requestEvent) => {
 
   const docId = BigInt(requestEvent.params.docId);
   await deleteDoc(userId, docId);
-  throw requestEvent.redirect(302, "/app/");
+  throw requestEvent.redirect(302, "/doc/");
 });
 
 export default component$(() => {
@@ -53,7 +53,7 @@ export default component$(() => {
     <div class="mx-auto max-w-3xl p-8">
       <div class="mb-4 flex items-center justify-between">
         <a
-          href="/app/"
+          href="/doc/"
           class="text-sm text-gray-500 hover:text-gray-700"
         >
           &larr; Back to notes
@@ -105,7 +105,7 @@ export default component$(() => {
           </button>
           {doc.value.docType === "md" && (
             <a
-              href={`/app/${doc.value.id}/preview`}
+              href={`/doc/${doc.value.id}/preview`}
               class="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 transition hover:bg-gray-50"
             >
               Preview
