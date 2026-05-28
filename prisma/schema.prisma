@@ -25,8 +25,8 @@ model Doc {
   summary   String?
   docType   String   @default("md") @map("doc_type")
   status    String   @default("active")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt BigInt @map("created_at")
+  updatedAt BigInt @map("updated_at")
 
   @@map("docs")
 }

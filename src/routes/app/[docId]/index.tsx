@@ -19,8 +19,8 @@ export const useDoc = routeLoader$(async (requestEvent) => {
     ...doc,
     id: doc.id.toString(),
     userId: String(doc.userId),
-    createdAt: doc.createdAt.toISOString(),
-    updatedAt: doc.updatedAt.toISOString(),
+    createdAt: new Date(Number(doc.createdAt) * 1000).toISOString(),
+    updatedAt: new Date(Number(doc.updatedAt) * 1000).toISOString(),
   };
 });
 

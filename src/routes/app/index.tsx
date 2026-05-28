@@ -3,12 +3,17 @@ import type { DocumentHead } from "@builder.io/qwik-city";
 import { routeLoader$ } from "@builder.io/qwik-city";
 import { getUserIdFromSession } from "../services/auth/services";
 import { getDocsForUser } from "../services/docs/services";
-import type { DocWithTags } from "../services/docs/types";
-
-export const useDocs = routeLoader$(async (requestEvent): Promise<DocWithTags[]> => {
+export const useDocs = routeLoader$(async (requestEvent) => {
   const userId = await getUserIdFromSession(requestEvent);
   if (!userId) return [];
-  return getDocsForUser(userId);
+  const docs = await getDocsForUser(userId);
+  return docs.map((doc) => ({
+    ...doc,
+    id: doc.id.toString(),
+    userId: doc.userId.toString(),
+    createdAt: Number(doc.createdAt),
+    updatedAt: Number(doc.updatedAt),
+  }));
 });
 
 export default component$(() => {
@@ -64,7 +69,7 @@ export default component$(() => {
                 <p class="line-clamp-2 text-sm text-gray-500">{doc.summary}</p>
               )}
               <p class="mt-2 text-xs text-gray-400">
-                {new Date(doc.updatedAt).toLocaleDateString()}
+                {new Date(doc.updatedAt * 1000).toLocaleDateString()}
               </p>
             </a>
           ))}
