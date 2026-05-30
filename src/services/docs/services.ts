@@ -1,4 +1,4 @@
-import { prisma } from "~/db/prisma";
+import { getPrismaClient  } from "~/lib/prisma";
 import type { DocWithTags } from "./types";
 
 async function attachTagsToDocs<T extends { id: bigint }>(
@@ -6,6 +6,7 @@ async function attachTagsToDocs<T extends { id: bigint }>(
 ): Promise<(T & { tags: { tag: { id: number; name: string; slug: string } }[] })[]> {
   if (docs.length === 0) return docs.map((d) => ({ ...d, tags: [] }));
   const docIds = docs.map((d) => d.id);
+  const prisma = getPrismaClient();
   const docTags = await prisma.docTag.findMany({
     where: { docId: { in: docIds } },
   });
@@ -27,6 +28,7 @@ async function attachTagsToDocs<T extends { id: bigint }>(
 export async function getDocsForUser(
   userId: bigint
 ): Promise<DocWithTags[]> {
+  const prisma = getPrismaClient();
   const docs = await prisma.doc.findMany({
     where: { userId, status: "active" },
     orderBy: { updatedAt: "desc" },
@@ -38,6 +40,7 @@ export async function getDocForUser(
   userId: bigint,
   docId: bigint
 ): Promise<DocWithTags | null> {
+  const prisma = getPrismaClient();
   const doc = await prisma.doc.findFirst({
     where: { id: docId, userId, status: "active" },
   });
@@ -52,6 +55,7 @@ export async function createDoc(
   docType: string = "md"
 ): Promise<{ id: bigint }> {
   const now = BigInt(Math.floor(Date.now() / 1000));
+  const prisma = getPrismaClient();
   const doc = await prisma.doc.create({
     data: { userId, content, docType, createdAt: now, updatedAt: now },
   });
@@ -63,6 +67,7 @@ export async function updateDoc(
   docId: bigint,
   data: { content?: string; summary?: string | null }
 ): Promise<void> {
+  const prisma = getPrismaClient();
   await prisma.doc.updateMany({
     where: { id: docId, userId },
     data: { ...data, updatedAt: BigInt(Math.floor(Date.now() / 1000)) },
@@ -73,6 +78,7 @@ export async function deleteDoc(
   userId: bigint,
   docId: bigint
 ): Promise<void> {
+  const prisma = getPrismaClient();
   await prisma.doc.updateMany({
     where: { id: docId, userId },
     data: { status: "deleted" },

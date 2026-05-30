@@ -1,6 +1,6 @@
 import { SignJWT, jwtVerify } from "jose";
 import type { RequestEventBase } from "@builder.io/qwik-city";
-import { prisma } from "~/db/prisma";
+import { getPrismaClient } from "~/lib/prisma";
 import type { GoogleTokenResponse, GoogleUser, AuthUser } from "./types";
 
 function getSecret() {
@@ -57,6 +57,7 @@ function unixNow(): bigint {
 
 export async function findOrCreateUser(googleUser: GoogleUser): Promise<{ id: bigint }> {
   const now = unixNow();
+  const prisma = getPrismaClient();
   const user = await prisma.user.upsert({
     where: { email: googleUser.email },
     update: {
@@ -98,6 +99,7 @@ export async function getUserIdFromSession(
 export async function getUserById(
   userId: bigint
 ): Promise<AuthUser | null> {
+  const prisma = getPrismaClient();
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) return null;
   return {
