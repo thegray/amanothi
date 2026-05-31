@@ -13,8 +13,8 @@ export type DocWithTags = {
   summary: string | null;
   docType: string;
   status: string;
-  createdAt: bigint;
-  updatedAt: bigint;
+  createdAt: Date;
+  updatedAt: Date;
   tags: DocTag[];
 };
 

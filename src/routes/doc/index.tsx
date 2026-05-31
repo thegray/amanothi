@@ -11,8 +11,8 @@ export const useDocs = routeLoader$(async (requestEvent) => {
     ...doc,
     id: doc.id.toString(),
     userId: doc.userId.toString(),
-    createdAt: Number(doc.createdAt),
-    updatedAt: Number(doc.updatedAt),
+    createdAt: doc.createdAt.toISOString(),
+    updatedAt: doc.updatedAt.toISOString(),
   }));
 });
 
@@ -69,7 +69,7 @@ export default component$(() => {
                 <p class="line-clamp-2 text-sm text-gray-500">{doc.summary}</p>
               )}
               <p class="mt-2 text-xs text-gray-400">
-                {new Date(doc.updatedAt * 1000).toLocaleDateString()}
+                {new Date(doc.updatedAt).toLocaleDateString()}
               </p>
             </a>
           ))}

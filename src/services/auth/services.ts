@@ -1,7 +1,7 @@
 import { SignJWT, jwtVerify } from "jose";
 import type { RequestEventBase } from "@builder.io/qwik-city";
-import { getPrismaClient } from "~/lib/prisma";
-import type { GoogleTokenResponse, GoogleUser, AuthUser } from "./types";
+import type { GoogleTokenResponse, GoogleUser } from "./types";
+export { findOrCreateUser, getUserById } from "~/db/queries/auth";
 
 function getSecret() {
   const sessionSecret = import.meta.env.VITE_SESSION_SECRET;
@@ -51,31 +51,6 @@ export async function getGoogleUser(accessToken: string): Promise<GoogleUser> {
   return res.json();
 }
 
-function unixNow(): bigint {
-  return BigInt(Math.floor(Date.now() / 1000));
-}
-
-export async function findOrCreateUser(googleUser: GoogleUser): Promise<{ id: bigint }> {
-  const now = unixNow();
-  const prisma = getPrismaClient();
-  const user = await prisma.user.upsert({
-    where: { email: googleUser.email },
-    update: {
-      displayName: googleUser.name,
-      tokenVersion: { increment: 1 },
-      updatedAt: now,
-    },
-    create: {
-      email: googleUser.email,
-      displayName: googleUser.name,
-      tokenVersion: 1,
-      createdAt: now,
-      updatedAt: now,
-    },
-  });
-  return { id: user.id };
-}
-
 export async function createSessionToken(userId: bigint): Promise<string> {
   return new SignJWT({ userId: String(userId) })
     .setProtectedHeader({ alg: "HS256" })
@@ -94,17 +69,4 @@ export async function getUserIdFromSession(
   } catch {
     return null;
   }
-}
-
-export async function getUserById(
-  userId: bigint
-): Promise<AuthUser | null> {
-  const prisma = getPrismaClient();
-  const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (!user) return null;
-  return {
-    id: user.id,
-    email: user.email,
-    displayName: user.displayName,
-  };
 }
