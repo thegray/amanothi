@@ -14,5 +14,5 @@ export type GoogleUser = {
 export type AuthUser = {
   id: bigint;
   email: string;
-  name: string;
+  displayName: string | null;
 };

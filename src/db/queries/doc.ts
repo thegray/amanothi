@@ -55,8 +55,9 @@ export async function createDoc(
   docType: string = "md"
 ): Promise<{ id: bigint }> {
   const prisma = getPrismaClient();
+  const now = Math.floor(Date.now() / 1000);
   const doc = await prisma.doc.create({
-    data: { userId, content, docType },
+    data: { userId, content, docType, createdAt: now, updatedAt: now },
   });
   return { id: doc.id };
 }
@@ -69,7 +70,7 @@ export async function updateDoc(
   const prisma = getPrismaClient();
   await prisma.doc.updateMany({
     where: { id: docId, userId },
-    data,
+    data: { ...data, updatedAt: Math.floor(Date.now() / 1000) },
   });
 }
 
