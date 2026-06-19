@@ -33,16 +33,14 @@ steps:
       - "--set-secrets=VITE_GOOGLE_CLIENT_SECRET=VITE_GOOGLE_CLIENT_SECRET:latest"
       - "--set-secrets=VITE_GOOGLE_REDIRECT_URI=VITE_GOOGLE_REDIRECT_URI:latest"
       - "--set-secrets=VITE_SESSION_SECRET=VITE_SESSION_SECRET:latest"
-      - "--add-cloudsql-instances=${_CLOUD_SQL_INSTANCE}"
 
 substitutions:
   _SERVICE_NAME: amanothi
   _REGION: asia-southeast2
-  _CLOUD_SQL_INSTANCE: ${PROJECT_ID}:${_REGION}:amanothi-db
-  _DB_HOST: localhost
-  _DB_PORT: "5432"
+  _DB_HOST: aws-1-ap-northeast-2.pooler.supabase.com
+  _DB_PORT: "6543"
   _DB_USER: postgres
-  _DB_NAME: amanothi
+  _DB_NAME: postgres
 
 images:
   - "gcr.io/${PROJECT_ID}/${_SERVICE_NAME}:${SHORT_SHA}"

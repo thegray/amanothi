@@ -24,6 +24,7 @@ const { router, notFound, staticFile } = createQwikCity({
 
 // Allow for dynamic port
 const port = Number(Bun.env.PORT ?? 3000);
+const hostname = "0.0.0.0"
 
 // eslint-disable-next-line no-console
 console.log(`Server started: http://localhost:${port}/`);
@@ -78,4 +79,7 @@ Bun.serve({
     return notFound(request);
   },
   port,
+  hostname,
 });
+
+console.log(`Server started on http://${hostname}:${port}`);
