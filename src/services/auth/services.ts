@@ -4,14 +4,19 @@ import type { GoogleTokenResponse, GoogleUser } from "./types";
 export { findOrCreateUser, getUserById } from "~/db/queries/auth";
 
 function getSecret() {
-  const sessionSecret = import.meta.env.VITE_SESSION_SECRET;
+  const sessionSecret = process.env.VITE_SESSION_SECRET;
   if (!sessionSecret) throw new Error("VITE_SESSION_SECRET is not set");
   return new TextEncoder().encode(sessionSecret);
 }
 
 export function getGoogleOAuthURL(): string {
-  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-  const redirectUri = import.meta.env.VITE_GOOGLE_REDIRECT_URI;
+  const clientId = process.env.VITE_GOOGLE_CLIENT_ID;
+  const redirectUri = process.env.VITE_GOOGLE_REDIRECT_URI;
+
+  if (!clientId || !redirectUri) {
+    throw new Error("Missing Google OAuth environment variables");
+  }
+
   const params = new URLSearchParams({
     client_id: clientId,
     redirect_uri: redirectUri,
@@ -24,15 +29,22 @@ export function getGoogleOAuthURL(): string {
 }
 
 export async function getGoogleTokens(code: string): Promise<GoogleTokenResponse> {
-  const secret = import.meta.env.VITE_GOOGLE_CLIENT_SECRET;
+  const secret = process.env.VITE_GOOGLE_CLIENT_SECRET;
+  const clientId = process.env.VITE_GOOGLE_CLIENT_ID;
+  const redirectUri = process.env.VITE_GOOGLE_REDIRECT_URI;
+
+  if (!secret || !clientId || !redirectUri) {
+    throw new Error("Missing Google Token exchange environment variables");
+  }
+
   const res = await fetch("https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
       code,
-      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+      client_id: clientId,
       client_secret: secret,
-      redirect_uri: import.meta.env.VITE_GOOGLE_REDIRECT_URI,
+      redirect_uri: redirectUri,
       grant_type: "authorization_code",
     }),
   });

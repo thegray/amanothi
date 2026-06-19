@@ -1,0 +1,43 @@
+steps:
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      - build
+      - "--tag=gcr.io/${PROJECT_ID}/${_SERVICE_NAME}:${SHORT_SHA}"
+      - "--tag=gcr.io/${PROJECT_ID}/${_SERVICE_NAME}:latest"
+      - "."
+
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      - push
+      - "gcr.io/${PROJECT_ID}/${_SERVICE_NAME}:${SHORT_SHA}"
+
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - "${_SERVICE_NAME}"
+      - "--image=gcr.io/${PROJECT_ID}/${_SERVICE_NAME}:${SHORT_SHA}"
+      - "--region=${_REGION}"
+      - "--platform=managed"
+      - "--allow-unauthenticated"
+      - "--cpu=1"
+      - "--memory=512Mi"
+      - "--concurrency=80"
+      - "--min-instances=0"
+      - "--max-instances=10"
+      - "--timeout=300s"
+      - "--set-secrets=DATABASE_URL=DATABASE_URL:latest"
+      - "--set-secrets=VITE_GOOGLE_CLIENT_ID=VITE_GOOGLE_CLIENT_ID:latest"
+      - "--set-secrets=VITE_GOOGLE_CLIENT_SECRET=VITE_GOOGLE_CLIENT_SECRET:latest"
+      - "--set-secrets=VITE_GOOGLE_REDIRECT_URI=VITE_GOOGLE_REDIRECT_URI:latest"
+      - "--set-secrets=VITE_SESSION_SECRET=VITE_SESSION_SECRET:latest"
+      - "--add-cloudsql-instances=${_CLOUD_SQL_INSTANCE}"
+
+substitutions:
+  _SERVICE_NAME: amanothi
+  _REGION: asia-southeast2
+  _CLOUD_SQL_INSTANCE: ${PROJECT_ID}:${_REGION}:amanothi-db
+
+images:
+  - "gcr.io/${PROJECT_ID}/${_SERVICE_NAME}:${SHORT_SHA}"
