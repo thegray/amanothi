@@ -27,7 +27,8 @@ steps:
       - "--min-instances=0"
       - "--max-instances=10"
       - "--timeout=300s"
-      - "--set-secrets=DATABASE_URL=DATABASE_URL:latest"
+      - "--set-env-vars=DB_HOST=${_DB_HOST},DB_PORT=${_DB_PORT},DB_USER=${_DB_USER},DB_NAME=${_DB_NAME}"
+      - "--set-secrets=DB_PASSWORD=DB_PASSWORD:latest"
       - "--set-secrets=VITE_GOOGLE_CLIENT_ID=VITE_GOOGLE_CLIENT_ID:latest"
       - "--set-secrets=VITE_GOOGLE_CLIENT_SECRET=VITE_GOOGLE_CLIENT_SECRET:latest"
       - "--set-secrets=VITE_GOOGLE_REDIRECT_URI=VITE_GOOGLE_REDIRECT_URI:latest"
@@ -38,6 +39,10 @@ substitutions:
   _SERVICE_NAME: amanothi
   _REGION: asia-southeast2
   _CLOUD_SQL_INSTANCE: ${PROJECT_ID}:${_REGION}:amanothi-db
+  _DB_HOST: localhost
+  _DB_PORT: "5432"
+  _DB_USER: postgres
+  _DB_NAME: amanothi
 
 images:
   - "gcr.io/${PROJECT_ID}/${_SERVICE_NAME}:${SHORT_SHA}"
