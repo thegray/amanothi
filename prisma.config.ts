@@ -1,18 +1,19 @@
 import "dotenv/config";
 import { defineConfig } from "prisma/config";
-import { buildDatabaseUrl } from "./src/lib/database-url";
+import { getDatabaseUrl, getDirectUrl } from "./src/lib/database-url";
 
-function getDatabaseUrl(): string {
-  const host = process.env.DB_HOST;
-  if (!host) {
+function safeGetUrl(): string {
+  try {
+    return getDatabaseUrl();
+  } catch {
     return "postgresql://placeholder:placeholder@localhost:5432/placeholder?schema=public";
   }
+}
+
+function safeGetDirectUrl(): string {
   try {
-    return buildDatabaseUrl();
-  } catch (e) {
-    console.error("WARNING: Could not build database URL:", (e as Error).message);
-    console.error("Prisma commands requiring DB access (migrate, push) will fail.");
-    console.error("Check that DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME are all set.");
+    return getDirectUrl();
+  } catch {
     return "postgresql://placeholder:placeholder@localhost:5432/placeholder?schema=public";
   }
 }
@@ -20,6 +21,7 @@ function getDatabaseUrl(): string {
 export default defineConfig({
   schema: "prisma/schema.prisma",
   datasource: {
-    url: getDatabaseUrl(),
+    url: safeGetUrl(),
+    directUrl: safeGetDirectUrl(),
   },
 });

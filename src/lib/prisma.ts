@@ -1,13 +1,13 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { buildDatabaseUrl } from "./database-url";
+import { getDatabaseUrl } from "./database-url";
 
 declare global {
   var __prisma: PrismaClient | undefined;
 }
 
 function createPrisma(): PrismaClient {
-  const url = buildDatabaseUrl();
+  const url = getDatabaseUrl();
 
   const adapter = new PrismaPg({ connectionString: url });
   return new PrismaClient({
