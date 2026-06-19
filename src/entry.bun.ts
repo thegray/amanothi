@@ -82,4 +82,3 @@ Bun.serve({
   // hostname,
 });
 
-console.log(`Server started on http://${hostname}:${port}`);
