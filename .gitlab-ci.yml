@@ -29,7 +29,7 @@ deploy-to-cloud-run:
     - echo "Submitting build payload to Cloud Build..."
     - >
       gcloud builds submit --config=cloudbuild.yaml 
-      --substitutions=_REGISTRY_LOCATION="${GCP_REGION}",_REPO_NAME="${REPO_NAME}",_SERVICE_NAME="${CLOUD_RUN_SERVICE}" 
+      --substitutions=_REGISTRY_LOCATION="${GCP_REGION}",_REPO_NAME="${REPO_NAME}",_SERVICE_NAME="${CLOUD_RUN_SERVICE}",_SHORT_SHA="${CI_COMMIT_SHORT_SHA}" 
       --quiet
 
     # 3. Handle the live deployment configuration and secrets referencing

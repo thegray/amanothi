@@ -1,15 +1,15 @@
 steps:
-  # 1. Build the image utilizing kaniko or docker, pushing to Artifact Registry
+  # 1. Build the image utilizing Docker, pushing to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
     args: [
       'build', 
-      '-t', '${_REGISTRY_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/${_SERVICE_NAME}:${SHORT_SHA}', 
+      '-t', '${_REGISTRY_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/${_SERVICE_NAME}:${_SHORT_SHA}', 
       '.'
     ]
 
 # Push the immutable tagged image securely to Artifact Registry
 images:
-  - '${_REGISTRY_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/${_SERVICE_NAME}:${SHORT_SHA}'
+  - '${_REGISTRY_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/${_SERVICE_NAME}:${_SHORT_SHA}'
 
 options:
   logging: CLOUD_LOGGING_ONLY
