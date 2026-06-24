@@ -7,7 +7,7 @@ variables:
   GCP_WORKLOAD_IDENTITY_PROVIDER: "projects/420107373590/locations/global/workloadIdentityPools/gitlab-pool/providers/gitlab-provider"
   GCP_SERVICE_ACCOUNT: "gitlab-run-deployer@reverieing-apps.iam.gserviceaccount.com"
   CLOUD_RUN_SERVICE: "amanothi"
-  REPO_NAME: "amanothi-app-containers" # Make sure this matches your Artifact Registry repo name
+  REPO_NAME: "amanothi-app-containers" 
   GOOGLE_REDIRECT_URI: "https://amanothi-420107373590.asia-southeast2.run.app/login/oauth"
 
 deploy-to-cloud-run:
@@ -16,28 +16,33 @@ deploy-to-cloud-run:
   identity: google-cloud
   script:
     # 1. Log in securely via Workload Identity Federation
+    - echo "Authenticating with Google Cloud..."
     - gcloud auth login --cred-file=${CI_JOB_JWT_FILE} --quiet
     - gcloud config set project ${GCP_PROJECT_ID}
 
     # 2. Trigger Cloud Build to build the container binary
-    - gcloud builds submit --config=cloudbuild.yaml \
-        --substitutions=_REGISTRY_LOCATION="${GCP_REGION}",_REPO_NAME="${REPO_NAME}",_SERVICE_NAME="${CLOUD_RUN_SERVICE}" \
-        --quiet
+    - echo "Submitting build payload to Cloud Build..."
+    - >
+      gcloud builds submit --config=cloudbuild.yaml 
+      --substitutions=_REGISTRY_LOCATION="${GCP_REGION}",_REPO_NAME="${REPO_NAME}",_SERVICE_NAME="${CLOUD_RUN_SERVICE}" 
+      --quiet
 
     # 3. Handle the live deployment configuration and secrets referencing
-    - gcloud run deploy ${CLOUD_RUN_SERVICE} \
-        --image ${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT_ID}/${REPO_NAME}/${CLOUD_RUN_SERVICE}:${CI_COMMIT_SHORT_SHA} \
-        --region ${GCP_REGION} \
-        --platform managed \
-        --allow-unauthenticated \
-        --cpu 1 \
-        --memory 512Mi \
-        --concurrency 80 \
-        --min-instances 0 \
-        --max-instances 10 \
-        --timeout 300s \
-        --set-env-vars VITE_GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI} \
-        --set-secrets "DATABASE_URL=db-url-pool:latest,DIRECT_URL=db-url-direct:latest,VITE_GOOGLE_CLIENT_ID=google-client-id:latest,VITE_GOOGLE_CLIENT_SECRET=google-client-secret:latest,VITE_SESSION_SECRET=session-secret:latest" \
-        --quiet
+    - echo "Deploying immutable container image revision to Cloud Run..."
+    - >
+      gcloud run deploy ${CLOUD_RUN_SERVICE} 
+      --image ${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT_ID}/${REPO_NAME}/${CLOUD_RUN_SERVICE}:${CI_COMMIT_SHORT_SHA} 
+      --region ${GCP_REGION} 
+      --platform managed 
+      --allow-unauthenticated 
+      --cpu 1 
+      --memory 512Mi 
+      --concurrency 80 
+      --min-instances 0 
+      --max-instances 10 
+      --timeout 300s 
+      --set-env-vars VITE_GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI} 
+      --set-secrets DATABASE_URL=db-url-pool:latest,DIRECT_URL=db-url-direct:latest,VITE_GOOGLE_CLIENT_ID=google-client-id:latest,VITE_GOOGLE_CLIENT_SECRET=google-client-secret:latest,VITE_SESSION_SECRET=session-secret:latest 
+      --quiet
   only:
     - main
