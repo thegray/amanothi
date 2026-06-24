@@ -13,11 +13,16 @@ variables:
 deploy-to-cloud-run:
   stage: deploy
   image: google/cloud-sdk:slim
-  identity: google_cloud
+  # This block explicitly mandates GitLab to fetch a secure OIDC token from its identity core
+  id_tokens:
+    GCP_OIDC_TOKEN:
+      aud: "https://gitlab.com"
   script:
-    # 1. Log in securely via Workload Identity Federation
-    - echo "Authenticating with Google Cloud..."
-    - gcloud auth login --cred-file=${CI_JOB_JWT_FILE} --quiet
+    # 1. Authorize against GCP using the generated ID Token configuration
+    - echo "Authenticating via Workload Identity Federation..."
+    - echo "${GCP_OIDC_TOKEN}" > .ci_job_jwt_file
+    - gcloud iam workload-identity-pools create-cred-config "${GCP_WORKLOAD_IDENTITY_PROVIDER}" --service-account="${GCP_SERVICE_ACCOUNT}" --credential-source-file=.ci_job_jwt_file --output-file=.gcp_temp_cred.json
+    - gcloud auth login --cred-file=.gcp_temp_cred.json --quiet
     - gcloud config set project ${GCP_PROJECT_ID}
 
     # 2. Trigger Cloud Build to build the container binary
