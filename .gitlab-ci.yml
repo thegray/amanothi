@@ -13,7 +13,7 @@ variables:
 deploy-to-cloud-run:
   stage: deploy
   image: google/cloud-sdk:slim
-  identity: google-cloud
+  identity: google_cloud
   script:
     # 1. Log in securely via Workload Identity Federation
     - echo "Authenticating with Google Cloud..."
