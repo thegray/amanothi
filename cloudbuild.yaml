@@ -2,7 +2,7 @@ steps:
   # 1. Build the image utilizing Docker, pushing to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
     args: [
-      'build', 
+      'build', '--no-cache',
       '-t', '${_REGISTRY_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/${_SERVICE_NAME}:${_SHORT_SHA}', 
       '.'
     ]
