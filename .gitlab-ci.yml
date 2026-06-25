@@ -7,8 +7,7 @@ variables:
   GCP_WORKLOAD_IDENTITY_PROVIDER: "projects/420107373590/locations/global/workloadIdentityPools/gitlab-pool/providers/gitlab-provider"
   GCP_SERVICE_ACCOUNT: "gitlab-run-deployer@reverieing-apps.iam.gserviceaccount.com"
   CLOUD_RUN_SERVICE: "amanothi"
-  REPO_NAME: "amanothi-app-containers" 
-  GOOGLE_REDIRECT_URI: "https://amanothi-420107373590.asia-southeast2.run.app/login/oauth"
+  REPO_NAME: "amanothi-app-containers"
 
 deploy-to-cloud-run:
   stage: deploy
@@ -46,7 +45,6 @@ deploy-to-cloud-run:
       --min-instances 0 
       --max-instances 10 
       --timeout 300s 
-      --set-env-vars VITE_GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI} 
       --set-secrets DATABASE_URL=db-url-pool:latest,DIRECT_URL=db-url-direct:latest,VITE_GOOGLE_CLIENT_ID=google-client-id:latest,VITE_GOOGLE_CLIENT_SECRET=google-client-secret:latest,VITE_SESSION_SECRET=session-secret:latest 
       --quiet
   only:
